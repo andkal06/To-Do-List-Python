@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCHEDULO</title>
+    <link rel="stylesheet" href="styling.css">
+    <style>
+      #clock {
+        font-size: 50px;
+        font-weight: bold;
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        color: #493628;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <img src="logo.nama.png" alt="Logo SCHEDULO">
+        <div class="links">
+          <ul>
+            <li><a class="active" href="tulis.html">HOME</a></li>
+            <li><a href="aboutus.html">ABOUT</a></li>
+            <li><a href = "http://127.0.0.1:5000">TO DO LIST</a></li>
+          </ul>
+      
+      </nav>
+
+      <div class="home-content">
+        <div class="home-container">
+          <h1>SCHEDULO</h1>
+          <p>"Own your time"</p>
+          <p>------------------------------------------------------------------------</p>
+          <p>Maksimalkan setiap detik dan capai produktivitas terbaikmu.</p>
+        </div>
+      </div>
+      
+      <div id="clock"></div>
+      
+      <script>
+        function updateClock() {
+          const now = new Date();
+          const hours = now.getHours().toString().padStart(2, '0');
+          const minutes = now.getMinutes().toString().padStart(2, '0');
+          const seconds = now.getSeconds().toString().padStart(2, '0');
+          document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+      </script>
+    </header>
+  </body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <style>
+        body {
+            background-color: #DFF2EB;
+            color: #4A628A;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        h1 {
+            background-color: #7AB2D3;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            color : #DFF2EB;
+        }
+        
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        input[type="text"], input[type="datetime-local"], input[type="date"], textarea {
+            width: 80%;
+            margin: 10px 0;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+        }
+        
+        button {
+            background-color: #789DBC;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        th, td {
+            padding: 10px; 
+            text-align: left; 
+            border-bottom: 1px solid #ddd; 
+        }
+        
+        th {
+            background-color: #C4E1F6; 
+        }
+
+        .popup {
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; width: 100%; height: 100%; 
+            background-color: rgba(0, 0, 0, 0.5); 
+            justify-content: center; 
+            align-items: center; 
+        }
+
+        .popup-content {
+            background-color: white; 
+            padding: 20px; border-radius: 10px; 
+            width: 300px; text-align: center; 
+        }
+
+        .close {
+            cursor: pointer; 
+        }
+        
+    </style>
+</head>
+<body id="todo">
+    <h1>To-Do List</h1>
+    
+    <form action="/add" method="POST">
+        <input type="text" name="task" placeholder="Tugas baru" required>
+        <input type="datetime-local" name="deadline" required> 
+        <textarea name="note" rows="3" placeholder="Catatan (opsional)"></textarea>
+        <button type="submit">Add</button>
+    </form>
+
+    <h2>Jumlah Tugas: {{ total_count }} | Tugas Selesai: {{ completed_count }}</h2>
+
+    <label for="filterDate">Filter Tanggal Deadline:</label>
+    <input type="date" id="filterDate" onchange="filterTasks()">
+    
+    <button onclick="clearFilter()">Clear Filter</button>
+
+    <h3>Tugas yang Belum Selesai</h3>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Tugas</th>
+                <th>Tanggal Dibuat</th>
+                <th>Deadline</th>
+                <th>Status</th>
+                <th>Catatan</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+
+        <tbody id="ongoingTodos">
+            {% for todo in ongoing_todos %}
+            <tr>
+                <td>{{ todo.task }}</td>
+                <td>{{ todo.date_created.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>{{ todo.deadline.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>{{ todo.status }}</td> <!-- Display the status -->
+                <td>
+                    <a href="#" onclick="openPopup('{{ todo.note|default('Tidak ada catatan.')|replace("'", "\\'") }}')">Lihat Catatan</a>
+                </td>
+                <td>
+                    <a href="/complete/{{ todo.id }}">Complete</a>
+                    <a href="/delete/{{ todo.id }}">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        
+    </table>
+
+    <h3>Tugas yang Sudah Selesai</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Tugas</th>
+                <th>Tanggal Dibuat</th>
+                <th>Deadline</th>
+                <th>Status</th>
+                <th>Tanggal Selesai</th>
+                <th>Catatan</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody id="completedTodos">
+            {% for todo in completed_todos %}
+                <tr>
+                    <td>{{ todo.task }}</td>
+                    <td>{{ todo.date_created.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ todo.deadline.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>Selesai</td>
+                    <td>{{ todo.date_completed.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td><a href="#" onclick="openPopup('{{ todo.note|default('Tidak ada catatan.')|replace("'", "\\'") }}')">Lihat Catatan</a></td>                
+                    <td><a href="/delete/{{ todo.id }}">Delete</a> | <a href="/restore/{{ todo.id }}">Kembalikan</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="popup" id="popup">
+        <div class="popup-content">
+            <span class="close" onclick="closePopup()">&times;</span>
+            <h4>Catatan</h4>
+            <p id="popupNoteContent" style="white-space: pre-wrap;"></p>
+        </div>
+    </div>
+
+<script>
+function openPopup(note) {
+    document.getElementById('popupNoteContent').innerText = note || 'Tidak ada catatan.'; 
+    document.getElementById('popup').style.display = 'flex'; 
+}
+
+function closePopup() {
+    document.getElementById('popup').style.display = 'none';
+}
+
+function filterTasks() {
+   const filterDate = document.getElementById("filterDate").value;
+   const ongoingTodos = document.getElementById("ongoingTodos").getElementsByTagName("tr");
+   const completedTodos = document.getElementById("completedTodos").getElementsByTagName("tr");
+
+   for (let i = 0; i < ongoingTodos.length; i++) {
+       ongoingTodos[i].style.display = "none";
+   }
+   for (let i = 0; i < completedTodos.length; i++) {
+       completedTodos[i].style.display = "none"; 
+    }
+ 
+   for (const todo of ongoingTodos) {
+       const deadline = todo.cells[2].innerText.split(' ')[0]; 
+       if (filterDate && deadline === filterDate) {
+           todo.style.display = ""; 
+       }
+   }
+
+   for (const todo of completedTodos) {
+       const deadline = todo.cells[2].innerText.split(' ')[0];
+       if (filterDate && deadline === filterDate) {
+           todo.style.display = ""; 
+       }
+   }
+}
+
+function clearFilter() {
+   document.getElementById("filterDate").value = ""; 
+   window.location.href = "/";
+}
+</script>
+
+</body>
+</html>
