@@ -1,13 +1,13 @@
 # **SchedulO – Own Your Time**
 
-SchedulO adalah website *To-Do List* berbasis Python Flask yang membantu pengguna dalam memanajemen jadwal harian dengan lebih teratur dan efisien. Pengguna dapat menambahkan daftar aktivitas, memberikan catatan atau keterangan pada setiap tugas, menentukan tenggat waktu (*deadline*), serta melihat status apakah tugas tersebut sudah melewati batas waktu atau belum selesai.
+SchedulO is a Python Flask-based *To-Do List* website designed to help users manage their daily schedules more efficiently and in an organized way. Users can add daily tasks, provide notes or descriptions for each task, set deadlines, and view the status of tasks whether they are overdue or still unfinished.
 
-## Fitur Utama
-- Menambahkan tugas baru
-- Menambahkan catatan atau deskripsi tugas
-- Menentukan *deadline* tugas
-- Menandai tugas sebagai selesai
-- Menghapus tugas
-- Status otomatis jika tugas melewati *deadline*
-- Menampilkan jumlah tugas selesai dan total tugas
-- Filter tugas berdasarkan tanggal
+## ✨ Main Features
+- Add new tasks
+- Add notes or task descriptions
+- Set task deadlines
+- Mark tasks as completed
+- Delete tasks
+- Automatic status for overdue tasks
+- Display completed tasks and total tasks
+- Filter tasks by date
